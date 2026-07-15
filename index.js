@@ -26,6 +26,8 @@ async function run() {
         const mycompany = database.collection("mycompany");
         const applications = database.collection("applications");
 
+        const plans = database.collection("plans");
+
         // adding new job(post request)
 
         app.post("/recruiter/managejobs/add-new", async (req, res) => {
@@ -131,6 +133,22 @@ async function run() {
 
 
         })
+
+        // finding plans apply limit info
+
+
+        app.get("/pricing", async (req, res) => {
+
+            const userPlan = req.query.currPlan;
+            const result = await plans.findOne({ name: userPlan });
+            res.json(result)
+
+
+
+        })
+
+
+
 
 
 
