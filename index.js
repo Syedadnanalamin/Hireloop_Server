@@ -22,11 +22,13 @@ async function run() {
         console.log("Pinged your deployment. connected to MongoDB!");
 
         const database = client.db('Hireloop');
+        const UserInfodb = client.db('test');
+        const user = UserInfodb.collection("user");
         const jobs = database.collection("jobs");
         const mycompany = database.collection("mycompany");
         const applications = database.collection("applications");
-
         const plans = database.collection("plans");
+        const subscribers = database.collection("subscribers");
 
         // adding new job(post request)
 
@@ -143,6 +145,49 @@ async function run() {
             const result = await plans.findOne({ name: userPlan });
             res.json(result)
 
+
+
+        })
+
+        // storing purchase info of the customer
+
+        app.post("/payment/success", async (req, res) => {
+            const customerDetails = req.body;
+
+            const query = {
+                subscriberId: customerDetails.subscriberId,
+                planPurchase: customerDetails.planPurchase
+
+            }
+
+            const filter = { _id: new ObjectId(customerDetails.subscriberId) };
+
+            const updateRes = await user.updateOne(filter, {
+                $set: {
+                    plan: customerDetails.planPurchase,
+                },
+            });
+
+
+            const existing = await subscribers.findOne(query);
+
+            if (!existing) {
+
+                const result = await subscribers.insertOne(customerDetails);
+
+
+
+
+                return res.status(201).json({
+                    success: true,
+                    insertedId: result.insertedId,
+                });
+            }
+
+            return res.status(200).json({
+                success: true,
+                message: "Already subscribed",
+            });
 
 
         })
