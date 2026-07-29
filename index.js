@@ -29,6 +29,7 @@ async function run() {
         const applications = database.collection("applications");
         const plans = database.collection("plans");
         const subscribers = database.collection("subscribers");
+        const subscriptionPlans = database.collection("subscriptionPlans")
 
         // adding new job(post request)
 
@@ -136,16 +137,21 @@ async function run() {
 
         })
 
-        // finding plans apply limit info
+        // finding plans apply limit info && geting all plans
 
 
         app.get("/pricing", async (req, res) => {
 
-            const userPlan = req.query.currPlan;
-            const result = await plans.findOne({ name: userPlan });
-            res.json(result)
+            const userPlan = req.query?.currPlan;
+            if (userPlan) {
+                const result = await plans.findOne({ name: userPlan });
+                res.json(result)
+            }
+            else {
+                const result = await subscriptionPlans.find({}).toArray();
 
-
+                res.json(result);
+            }
 
         })
 
@@ -191,6 +197,12 @@ async function run() {
 
 
         })
+
+
+
+
+
+
 
 
 
