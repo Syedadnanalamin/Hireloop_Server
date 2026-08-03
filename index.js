@@ -198,6 +198,19 @@ async function run() {
 
         })
 
+        // getting applications info
+
+        app.get("/applications/:recruiterId", async (req, res) => {
+            const recruiterId = req.params.recruiterId;
+            console.log(recruiterId);
+            const recruiterJobs = await jobs.find({ recruiterId: recruiterId }).toArray();
+            const jobIds = recruiterJobs.map(job => job._id.toString());
+            const applicationsList = await applications.find({ jobId: { $in: jobIds } }).toArray();
+            res.send(applicationsList);
+
+
+        })
+
 
 
 
