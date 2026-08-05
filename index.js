@@ -43,9 +43,13 @@ async function run() {
 
         })
 
-        // getting jobs specific details in manage jobs(get req)
+        // getting jobs with  specific details for a recruiter in manage jobs(get req)
 
-        app.get("/recruiter/managejobs", async (req, res) => {
+        app.get("/recruiter/managejobs/:recruiterId", async (req, res) => {
+            const recruiterId = req.params.recruiterId;
+            const query = {
+                recruiterId: recruiterId
+            }
 
             const projectfield = {
 
@@ -56,7 +60,7 @@ async function run() {
 
             }
 
-            const result = await jobs.find().project(projectfield).toArray();
+            const result = await jobs.find(query).project(projectfield).toArray();
             res.send(result);
         })
 
@@ -88,12 +92,19 @@ async function run() {
         })
 
         // get all published job info
-
         app.get("/jobs", async (req, res) => {
-
             const getpublishedjobs = await jobs.find({}).toArray();
             res.json(getpublishedjobs);
+        })
 
+        // get published jobs of a recruiter
+        app.get("/jobs/recruiter/:recruiterId", async (req, res) => {
+            const recruiterId = req.params.recruiterId;
+            const query = {
+                recruiterId: recruiterId
+            }
+            const getPublishedJobByRecruiter = await jobs.find(query).toArray();
+            res.json(getPublishedJobByRecruiter);
         })
 
 
@@ -210,7 +221,37 @@ async function run() {
 
 
         })
+        // updating job status on recruiter manage job
+        app.patch("/recruiter/managejobs/:jobId", async (req, res) => {
 
+            const jobId = req.params.jobId;
+            const { status } = req.body;
+            const filter = {
+                _id: new ObjectId(jobId)
+            };
+            const updateDocument = {
+                $set: {
+                    status: status
+                }
+            }
+
+            const result = await jobs.updateOne(filter, updateDocument);
+            res.send(result);
+
+        })
+
+        // deleting job on recruiter manage job
+        app.delete("/recruiter/managejobs/:jobId", async (req, res) => {
+
+            const jobId = req.params.jobId;
+            const filter = {
+                _id: new ObjectId(jobId)
+            };
+
+            const result = await jobs.deleteOne(filter);
+            res.send(result);
+
+        })
 
 
 
@@ -232,4 +273,4 @@ app.listen(process.env.PORT, () => {
 
     console.log("app is listening")
 
-})
+}) 
