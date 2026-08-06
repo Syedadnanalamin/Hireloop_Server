@@ -221,6 +221,50 @@ async function run() {
 
 
         })
+
+        // update application status
+
+        app.patch("/recruiter/applications/:jobId", async (req, res) => {
+
+            const { status } = req.body;
+            const { jobId } = req.params;
+
+            const query = {
+
+                _id: new ObjectId(jobId)
+            };
+
+
+            const updateDoc = {
+                $set: {
+
+                    status: status
+                }
+            };
+
+            try {
+
+                const result = await applications.updateOne(query, updateDoc);
+                if (result.acknowledged) {
+
+                    return res.status(200).json(
+                        { success: true, message: "application status updated successfully" });
+                }
+
+            } catch (error) {
+
+                res.status(500).json({
+                    success: false, message: "application status updating failed"
+                })
+
+            }
+
+        });
+
+
+
+
+
         // updating job status on recruiter manage job
         app.patch("/recruiter/managejobs/:jobId", async (req, res) => {
 
@@ -251,7 +295,8 @@ async function run() {
             const result = await jobs.deleteOne(filter);
             res.send(result);
 
-        })
+        });
+
 
 
 
