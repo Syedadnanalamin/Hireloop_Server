@@ -12,7 +12,8 @@ const client = new MongoClient(process.env.MONGO_URI, {
         version: ServerApiVersion.v1,
         strict: true,
         deprecationErrors: true,
-    }
+    },
+    serverSelectionTimeoutMS: 5000
 });
 
 async function run() {
@@ -295,6 +296,31 @@ async function run() {
             const result = await jobs.deleteOne(filter);
             res.send(result);
 
+        });
+
+
+        // update user profile
+        app.patch("/user/:id", async (req, res) => {
+            const id = req.params.id;
+            const { name, image, email } = req.body;
+            
+            try {
+                const filter = {
+                    _id: new ObjectId(id)
+                };
+                const updateDocument = {
+                    $set: {
+                        name: name,
+                        image: image,
+                        email: email
+                    }
+                }
+                const result = await user.updateOne(filter, updateDocument);
+                res.status(200).json({ success: true, result });
+            } catch (error) {
+                console.error("Error updating user profile:", error);
+                res.status(500).json({ success: false, message: "Failed to update user profile" });
+            }
         });
 
 
